@@ -3,15 +3,31 @@ from pyramid.config import Configurator
 from pyramid.response import Response
 
 
-def view_test(request):
-    """defines the return view"""
-    return Response('<h1>Hola From Pyramid!</h1>')
+def hello_world1(request):
+    """to make this works.. change
+            config.add_route('view', '/view/')
+     with: config.add_route('view', '/view/{info}')
+      and config.add_view(hello_world1
+      with: config.add_view(hello_world2
+    """
+    return Response('Hello %(info)s !' % request.matchdict)
 
-"""main function definition"""
+def hello_world2(request):
+    # Some parameters from a request such as /?name=something
+    url = request.url
+    name = request.params.get('name', 'No Name Provided')
+
+    body = 'URL %s with name: %s' % (url, name)
+    return Response(
+        content_type="text/plain",
+        body=body
+    )
+
+
 if __name__ == '__main__':
     with Configurator() as config:
-        config.add_route('root', '/')                   #adding route
-        config.add_view(view_test, route_name='root')   #define route block
+        config.add_route('view', '/view/')
+        config.add_view(hello_world2, route_name='view')
         app = config.make_wsgi_app()
-    server = make_server('127.0.0.1', 6543, app)
+    server = make_server('0.0.0.0', 8080, app)
     server.serve_forever()
